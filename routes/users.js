@@ -38,4 +38,21 @@ router.post('/signup', function(req, res, next) {
 
 });
 
+
+router.post('/login', function(req, res, next) {
+	console.log("post login")
+
+    var username = req.body.username;
+    var password = req.body.password;
+
+	AV.User.logIn(username,password).then(function(user) {
+	  console.log(user);
+  	  res.send(user);
+	}, function(error) {
+	  console.log(error);
+  	  res.send(error);
+	});
+
+});
+
 module.exports = router;
