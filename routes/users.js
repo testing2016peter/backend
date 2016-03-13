@@ -92,7 +92,7 @@ router.post('/login', function(req, res, next) {
 
 
 
-router.post('/me', function(req, res, next) {
+router.get('/me', function(req, res, next) {
 	console.log("post me")
 
 	if(AV.User.current()){
