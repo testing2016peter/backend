@@ -44,7 +44,7 @@ router.post('/signup', function(req, res, next) {
 });
 
 
-router.post('/update', function(req, res, next) {
+router.post('/me/update', function(req, res, next) {
 	console.log("post update")
 
 	var json= {
