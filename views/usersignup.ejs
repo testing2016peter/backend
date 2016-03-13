@@ -4,50 +4,41 @@
 		<script src="https://code.jquery.com/jquery-1.6.2.min.js"></script>		
 		<script type="text/javascript">
             $(function(){				
-                $('#select_link').click(function(e){
-                    e.preventDefault();
-                    console.log('select_link clicked');
+                var trigerAJAX = function (url ){
+                    var data = {};
+                    data.username = "title3";
+                    data.password = "message";
                     
-                     /*$.ajax({
-                        dataType: 'jsonp',
-                        data: "data=yeah",						
-                        jsonp: 'callback',
-                        url: 'http://localhost:3000/endpoint?callback=?',						
+                    $.ajax({
+                        type: 'POST',
+                        data: JSON.stringify(data),
+                        contentType: 'application/json',
+                        url: "/v1/users/"+url,    
+                    
                         success: function(data) {
                             console.log('success');
                             console.log(JSON.stringify(data));
-                        }
-                    });*/
-
-                //user log in 
-					var data = {};
-					data.username = "title2";
-					data.password = "message";
-					
-					$.ajax({
-						type: 'POST',
-						data: JSON.stringify(data),
-				        contentType: 'application/json',
-                        // url: '/v1/users/signup',	
-                        url: '/v1/users/login',                     
-					
-                        success: function(data) {
-                            console.log('success');
-                            console.log(JSON.stringify(data));
+                        },
+                        error: function(err) {
+                            console.log('err');
+                            console.log(JSON.stringify(err));
                         }
                     });
-					/*$.ajax('http://localhost:3000/endpoint', {
-					        type: 'POST',
-					        data: JSON.stringify(data),
-					        contentType: 'application/json',
-					        success: function() { console.log('success');},
-					        error  : function() { console.log('error');}
-					});*/
+                }
+
+                $('a').click(function(e){
+                    e.preventDefault();
+                    console.log('click '+e.target.id);
+                    trigerAJAX(e.target.id)
                 });				
             });
         </script>
     </head>
     <body>
-        <div id="select_div"><a href="#" id="select_link">Test</a></div>    
+
+        <div><a href="#" id="signup">signup</a></div>  
+        <div><a href="#" id="login">login</a></div>  
+        <div><a href="#" id="me">me</a></div>  
+        <div><a href="#" id="logout">logout</a></div>  
     </body>
 </html>

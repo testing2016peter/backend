@@ -55,4 +55,32 @@ router.post('/login', function(req, res, next) {
 
 });
 
+
+
+router.post('/me', function(req, res, next) {
+	console.log("post me")
+
+	if(AV.User.current()){
+		res.send(AV.User.current()) 
+	}
+	else{
+		// res.send({code: -1, message: "user not log in"}) 
+		res.status(200).send("user not log in")
+	}
+
+});
+
+router.post('/logout', function(req, res, next) {
+	console.log("post me")
+
+	if(AV.User.current()){
+		AV.User.logOut();
+		res.send({code: 0, message: "user log out"}) 
+	}
+	else{
+		res.send({code: -1, message: "user not log in"}) 
+	}
+
+});
+
 module.exports = router;
