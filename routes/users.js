@@ -21,10 +21,12 @@ router.post('/signup', function(req, res, next) {
 
     var username = req.body.username;
     var password = req.body.password;
+    var description = req.body.description;
 
 	var user = new AV.User();
 	user.set('username', username);
 	user.set('password', password);
+	user.set('description', description);
 
 	user.signUp().then(function(user) {
 	  console.log(user);
@@ -65,7 +67,7 @@ router.post('/me', function(req, res, next) {
 	}
 	else{
 		// res.send({code: -1, message: "user not log in"}) 
-		res.status(200).send("user not log in")
+		res.status(400).send({code: -1, message: "user not log in"})
 	}
 
 });
