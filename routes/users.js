@@ -13,12 +13,11 @@ router.get('/login', function(req, res, next) {
 
 
 router.get('/signup', function(req, res, next) {
-
-
+  res.render('usersignup');
 });
 
 router.post('/signup', function(req, res, next) {
-
+	console.log("post signup")
 
     var username = req.body.username;
     var password = req.body.password;
@@ -29,7 +28,7 @@ router.post('/signup', function(req, res, next) {
 
 	user.signUp().then(function(user) {
 	  console.log(user);
-  	  res.send('respond with a signup');
+  	  res.send(user);
 	}, function(error) {
 	  // 失败了
 	  console.log('Error: ' + error.code + ' ' + error.message);

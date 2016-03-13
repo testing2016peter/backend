@@ -28,7 +28,7 @@ app.use(AV.Cloud.CookieSession({ secret: 'my secret', maxAge: 93312000000, fetch
 
 
 app.use('/', routes);
-app.use('/users', users);
+app.use('/v1/users', users);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
