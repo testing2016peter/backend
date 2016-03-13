@@ -6,8 +6,11 @@
             $(function(){				
                 var trigerAJAX = function (url ){
                     var data = {};
-                    data.username = "title3";
-                    data.password = "message";
+
+                    // data.username = "title3";
+                    // data.password = "message";
+                    data.username = $("#username").val();
+                    data.password = $("#password").val();
                     
                     $.ajax({
                         type: 'POST',
@@ -35,6 +38,9 @@
         </script>
     </head>
     <body>
+
+        <input type="text" id="username" value="aa">
+        <input type="text" id="password" value="1234">
 
         <div><a href="#" id="signup">signup</a></div>  
         <div><a href="#" id="login">login</a></div>  
