@@ -1,7 +1,7 @@
 var express = require('express');
 var router = express.Router();
 var AV = require('leanengine')
-
+var _ = require('underscore')
 
 //istaging home
 AV.initialize("Wqia15HnxcIAXH1Lk06m2n3Q-gzGzoHsz", "hwd81deBLAQDk1a3G4jTUKjY");
@@ -21,12 +21,15 @@ router.post('/signup', function(req, res, next) {
 
     var username = req.body.username;
     var password = req.body.password;
-    var description = req.body.description;
+    var desc = req.body.desc;
 
 	var user = new AV.User();
 	user.set('username', username);
 	user.set('password', password);
-	user.set('description', description);
+	user.set('desc', desc);
+	user.set('longitude', longitude);
+	user.set('latitude', latitude);
+
 
 	user.signUp().then(function(user) {
 	  console.log(user);
@@ -40,6 +43,36 @@ router.post('/signup', function(req, res, next) {
 
 });
 
+
+router.post('/update', function(req, res, next) {
+	console.log("post update")
+
+	var json= {
+		username : "aa",
+		desc : "desc"
+	}
+
+
+	if(AV.User.current()){
+		var user =AV.User.current()
+		_.each(json, function( val, key ) {
+			user.set(key, val);
+		});
+	}
+	else{
+		// res.send({code: -1, message: "user not log in"}) 
+		res.status(400).send({code: -1, message: "user not log in"})
+	}
+
+	user.save().then(function(user) {
+	  console.log(user);
+  	  res.send(user);
+	}, function(error) {
+	  console.log('Error: ' + error.code + ' ' + error.message);
+  	  res.send(error);
+	});
+
+});
 
 router.post('/login', function(req, res, next) {
 	console.log("post login")
