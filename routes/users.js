@@ -44,7 +44,7 @@ router.post('/signup', function(req, res, next) {
 });
 
 
-router.post('/me/update', function(req, res, next) {
+router.post('/me', function(req, res, next) {
 	console.log("post update")
 
 	var json= {
@@ -58,19 +58,19 @@ router.post('/me/update', function(req, res, next) {
 		_.each(json, function( val, key ) {
 			user.set(key, val);
 		});
+		
+		user.save().then(function(user) {
+		  console.log(user);
+	  	  res.send(user);
+		}, function(error) {
+		  console.log('Error: ' + error.code + ' ' + error.message);
+	  	  res.send(error);
+		});
 	}
 	else{
 		// res.send({code: -1, message: "user not log in"}) 
 		res.status(400).send({code: -1, message: "user not log in"})
 	}
-
-	user.save().then(function(user) {
-	  console.log(user);
-  	  res.send(user);
-	}, function(error) {
-	  console.log('Error: ' + error.code + ' ' + error.message);
-  	  res.send(error);
-	});
 
 });
 
