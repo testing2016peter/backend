@@ -48,8 +48,8 @@ router.post('/me', function(req, res, next) {
 	console.log("post update")
 
 	var json= {
-		username : "aa",
-		desc : "desc"
+		imageUrl : "http://perfectskinsolutions.co.uk/wp-content/uploads/2014/06/woman-face-mobile.png",
+		backgroundUrl : "https://www.singaporeair.com/images/destination/main/tpe/Taipei2.jpg"
 	}
 
 
@@ -58,7 +58,7 @@ router.post('/me', function(req, res, next) {
 		_.each(json, function( val, key ) {
 			user.set(key, val);
 		});
-		
+
 		user.save().then(function(user) {
 		  console.log(user);
 	  	  res.send(user);
