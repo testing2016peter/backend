@@ -12,6 +12,50 @@ router.get('/login', function(req, res, next) {
 });
 
 
+router.post('/location', function(req, res, next) {
+
+	var location ={
+     longtitude : req.body.longtitude,
+     latitude : req.body.latitude,
+     country : req.body.country,
+     state : req.body.state,
+     city : req.body.city,
+     postcode : req.body.postcode
+	}
+
+	var Location = AV.Object.extend('Location');
+	var loc = new Location();
+
+	console.log("req.body")
+	console.log(req.body)
+
+	var str=""
+	_.each(location, function( val, key ) {
+		loc.set(key, val);
+		str+=val+"/"
+	});
+
+	loc.save().then(function(loc) {
+	  // 成功保存之后，执行其他逻辑.
+	  console.log('New object created with objectId: ' + loc.id);
+
+	  var user = AV.User.current()
+	  user.set('Location', loc);
+	  return user.save();
+	}).then(function(user) {
+
+		res.send('location: '+str+" is created by user:"+user.id);
+	  
+	}, function(err) {
+	  // 失败之后执行其他逻辑
+	  // error 是 AV.Error 的实例，包含有错误码和描述信息.
+	  console.log('Failed to create new object, with error message: ' + err.message);
+	});
+
+
+});
+
+
 router.get('/signup', function(req, res, next) {
   res.render('usersignup');
 });
@@ -27,8 +71,10 @@ router.post('/signup', function(req, res, next) {
 	user.set('username', username);
 	user.set('password', password);
 	user.set('desc', desc);
-	user.set('longitude', longitude);
-	user.set('latitude', latitude);
+	user.set('gender', gender);
+	user.set('backgroundUrl', backgroundUrl);
+	// user.set('longitude', longitude);
+	// user.set('latitude', latitude);
 
 
 	user.signUp().then(function(user) {
@@ -47,10 +93,7 @@ router.post('/signup', function(req, res, next) {
 router.post('/me', function(req, res, next) {
 	console.log("post update")
 
-	var json= {
-		imageUrl : "http://perfectskinsolutions.co.uk/wp-content/uploads/2014/06/woman-face-mobile.png",
-		backgroundUrl : "https://www.singaporeair.com/images/destination/main/tpe/Taipei2.jpg"
-	}
+	var json= req.body
 
 
 	if(AV.User.current()){
@@ -89,7 +132,6 @@ router.post('/login', function(req, res, next) {
 	});
 
 });
-
 
 
 router.get('/me', function(req, res, next) {
