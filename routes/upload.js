@@ -42,17 +42,17 @@ var bucketName = "newBucket"
 //   }
 // });
 
-var s3 = new AWS.S3();
+// var s3 = new AWS.S3();
 
-s3.listBuckets(function(err, data) {
-  if (err) { console.log("Error:", err); }
-  else {
-    for (var index in data.Buckets) {
-      var bucket = data.Buckets[index];
-      console.log("Bucket: ", bucket.Name, ' : ', bucket.CreationDate);
-    }
-  }
-});
+// s3.listBuckets(function(err, data) {
+//   if (err) { console.log("Error:", err); }
+//   else {
+//     for (var index in data.Buckets) {
+//       var bucket = data.Buckets[index];
+//       console.log("Bucket: ", bucket.Name, ' : ', bucket.CreationDate);
+//     }
+//   }
+// });
 
 /* GET users listing. */
 router.get('/upload', function(req, res, next) {

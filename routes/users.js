@@ -10,7 +10,40 @@ router.get('/login', function(req, res, next) {
 });
 
 
-router.post('/location/home', function(req, res, next) {
+var updateUserLocation = function (locJson, isHome){
+  var deferred = Promise.defer();
+
+  var isHomeStr = (isHome)?"homeLocation":"currentLocation"
+
+	var Location = AV.Object.extend('Location');
+	var loc = new Location();
+
+	var str=""
+	_.each(locJson, function( val, key ) {
+		loc.set(key, val);
+		str+=val+"/"
+	});
+
+	loc.save().then(function(loc) {
+	  // 成功保存之后，执行其他逻辑.
+	  console.log('New object created with objectId: ' + loc.id);
+
+	  var user = AV.User.current()
+	  user.set(isHomeStr, loc);
+	  return user.save();
+	}).then(function(user) {
+	  
+    	deferred.resolve(user)
+	}, function(err) {
+	  // 失败之后执行其他逻辑
+    	deferred.reject(err);
+	});
+
+  return deferred.promise;
+}
+
+
+router.put('/me/location/current', function(req, res, next) {
 
 	var location ={
      longtitude : req.body.longtitude,
@@ -21,35 +54,33 @@ router.post('/location/home', function(req, res, next) {
      postcode : req.body.postcode
 	}
 
-	var Location = AV.Object.extend('Location');
-	var loc = new Location();
-
-	console.log("req.body")
-	console.log(req.body)
-
-	var str=""
-	_.each(location, function( val, key ) {
-		loc.set(key, val);
-		str+=val+"/"
-	});
-
-	loc.save().then(function(loc) {
-	  // 成功保存之后，执行其他逻辑.
-	  console.log('New object created with objectId: ' + loc.id);
-
-	  var user = AV.User.current()
-	  user.set('Location', loc);
-	  return user.save();
-	}).then(function(user) {
-
-		res.send('location: '+str+" is created by user:"+user.id);
-	  
-	}, function(err) {
-	  // 失败之后执行其他逻辑
-	  // error 是 AV.Error 的实例，包含有错误码和描述信息.
+	updateUserLocation (location, false).then(function(user){
+		res.send('location:  is created by user:'+user.id);
+	},function(error){
 	  console.log('Failed to create new object, with error message: ' + err.message);
-	});
+  		res.send(error);
+	})
 
+});
+
+
+router.put('/me/location/home', function(req, res, next) {
+
+	var location ={
+     longtitude : req.body.longtitude,
+     latitude : req.body.latitude,
+     country : req.body.country,
+     state : req.body.state,
+     city : req.body.city,
+     postcode : req.body.postcode
+	}
+
+	updateUserLocation (location, true).then(function(user){
+		res.send('location:  is created by user:'+user.id);
+	},function(error){
+	  console.log('Failed to create new object, with error message: ' + err.message);
+  		res.send(error);
+	})
 
 });
 
@@ -98,24 +129,18 @@ router.post('/me',requiredLogin, function(req, res, next) {
 	var json= req.body
 
 
-	if(AV.User.current()){
-		var user =AV.User.current()
-		_.each(json, function( val, key ) {
-			user.set(key, val);
-		});
+	var user =AV.User.current()
+	_.each(json, function( val, key ) {
+		user.set(key, val);
+	});
 
-		user.save().then(function(user) {
-		  console.log(user);
-	  	  res.send(user);
-		}, function(error) {
-		  console.log('Error: ' + error.code + ' ' + error.message);
-	  	  res.send(error);
-		});
-	}
-	else{
-		// res.send({code: -1, message: "user not log in"}) 
-		res.status(400).send({code: -1, message: "user not log in"})
-	}
+	user.save().then(function(user) {
+	  console.log(user);
+  	  res.send(user);
+	}, function(error) {
+	  console.log('Error: ' + error.code + ' ' + error.message);
+  	  res.send(error);
+	});
 
 });
 
