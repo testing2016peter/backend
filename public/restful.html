@@ -1,0 +1,51 @@
+<html>
+	<head>
+		<title>jsonp test</title>
+		<script src="https://code.jquery.com/jquery-1.6.2.min.js"></script>		
+		<script type="text/javascript">
+            $(function(){				
+                var trigerAJAX = function (url ){
+                    var data = {};
+
+                    // data.username = "title3";
+                    // data.password = "message";
+                    data.username = $("#username").val();
+                    data.password = $("#password").val();
+                    
+                    $.ajax({
+                        type: 'POST',
+                        data: JSON.stringify(data),
+                        contentType: 'application/json',
+                        url: "/v1/users/"+url,    
+                    
+                        success: function(data) {
+                            console.log('success');
+                            console.log(data);
+                        },
+                        error: function(err) {
+                            console.log('err');
+                            console.log(err);
+                        }
+                    });
+                }
+
+                $('a').click(function(e){
+                    e.preventDefault();
+                    console.log('click '+e.target.id);
+                    trigerAJAX(e.target.id)
+                });				
+            });
+        </script>
+    </head>
+    <body>
+
+        <input type="text" id="username" value="aa">
+        <input type="text" id="password" value="1234">
+
+        <div><a href="#" id="signup">signup</a></div>  
+        <div><a href="#" id="login">login</a></div>  
+        <div><a href="#" id="me">me</a></div>  
+        <div><a href="#" id="logout">logout</a></div>  
+        <div><a href="#" id="update">update</a></div>  
+    </body>
+</html>

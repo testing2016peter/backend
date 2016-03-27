@@ -2,6 +2,8 @@ var express = require('express');
 var router = express.Router();
 var AV = require('leanengine')
 var _ = require('underscore')
+var requiredLogin = require('../module/requiredLogin.js')
+
 
 //istaging home
 AV.initialize("Wqia15HnxcIAXH1Lk06m2n3Q-gzGzoHsz", "hwd81deBLAQDk1a3G4jTUKjY");
@@ -90,7 +92,7 @@ router.post('/signup', function(req, res, next) {
 });
 
 
-router.post('/me', function(req, res, next) {
+router.post('/me',requiredLogin, function(req, res, next) {
 	console.log("post update")
 
 	var json= req.body
