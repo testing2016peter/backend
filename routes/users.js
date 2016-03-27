@@ -4,10 +4,6 @@ var AV = require('leanengine')
 var _ = require('underscore')
 var requiredLogin = require('../module/requiredLogin.js')
 
-
-//istaging home
-AV.initialize("Wqia15HnxcIAXH1Lk06m2n3Q-gzGzoHsz", "hwd81deBLAQDk1a3G4jTUKjY");
-
 /* GET users listing. */
 router.get('/login', function(req, res, next) {
   res.send('respond with a resource');
@@ -68,12 +64,16 @@ router.post('/signup', function(req, res, next) {
     var username = req.body.username;
     var password = req.body.password;
     var desc = req.body.desc;
+    var gender = req.body.gender;
+    var nickname = req.body.nickname;
+    var backgroundUrl = req.body.backgroundUrl;
 
 	var user = new AV.User();
 	user.set('username', username);
 	user.set('password', password);
 	user.set('desc', desc);
 	user.set('gender', gender);
+	user.set('nickname', nickname);
 	user.set('backgroundUrl', backgroundUrl);
 	// user.set('longitude', longitude);
 	// user.set('latitude', latitude);
