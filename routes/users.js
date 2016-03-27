@@ -10,7 +10,7 @@ router.get('/login', function(req, res, next) {
 });
 
 
-router.post('/location', function(req, res, next) {
+router.post('/location/home', function(req, res, next) {
 
 	var location ={
      longtitude : req.body.longtitude,
