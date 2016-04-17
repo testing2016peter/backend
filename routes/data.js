@@ -20,7 +20,8 @@ router.get('/posts', function(req, res, next) {
 
     var query = new AV.Query(Post);
 
-
+    query.skip(10);
+	query.limit(10);
 	query.include('_User');
 	query.exists('objectId');
 	query.find().then(function(posts) {
@@ -28,6 +29,10 @@ router.get('/posts', function(req, res, next) {
 		var postArr = []
 		_.each(posts,function(post){
 			var authorId = post.get('author')
+			var likeArr = post.get('likes')
+
+			console.log("likeArr")
+			console.log(likeArr)
 
 			post=post.toJSON()
 			var p = {
@@ -35,6 +40,7 @@ router.get('/posts', function(req, res, next) {
 				text: post.text,
 				createdAt: post.createdAt,
 				updatedAt: post.updatedAt,
+				likes: post.likes,
 				author: post.author.objectId
 			}
 			postArr.push(p)
@@ -174,6 +180,7 @@ router.post('/post/:postId/like', function(req, res, next) {
 		var likes = []
 		likes.push(AV.User.current())
 
+		console.log(likes)
 		post.set("likes", likes)
 
 		return post.save()
