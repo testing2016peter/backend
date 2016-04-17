@@ -4,6 +4,9 @@ var AV = require('leanengine')
 var _ = require('underscore')
 var requiredLogin = require('../module/requiredLogin.js')
 
+var parseToolkit = require('../module/parseToolkit')
+var jsonAPI = require('../module/jsonAPI')
+
 /* GET users listing. */
 router.get('/login', function(req, res, next) {
   res.send('respond with a resource');
@@ -89,38 +92,87 @@ router.get('/signup', function(req, res, next) {
   res.render('usersignup');
 });
 
+
+///////////////////////////////////////////
+// signup
+///////////////////////////////////////////
+router.use('/signup', function(req, res, next) {
+    var email = req.body.email,
+        password = req.body.password;
+
+    if (!email || !password ) {
+        res.status(400).send("error")
+    } 
+    else{
+        req.userJ = jsonAPI.removeNull({
+            email: email,
+            username: email,
+            password: password
+        })
+        next()
+    }
+});
+
 router.post('/signup', function(req, res, next) {
-	console.log("post signup")
+    console.log("post signup")
 
-    var username = req.body.username;
-    var password = req.body.password;
-    var desc = req.body.desc;
-    var gender = req.body.gender;
-    var nickname = req.body.nickname;
-    var backgroundUrl = req.body.backgroundUrl;
+    console.log(req.userJ)
 
-	var user = new AV.User();
-	user.set('username', username);
-	user.set('password', password);
-	user.set('desc', desc);
-	user.set('gender', gender);
-	user.set('nickname', nickname);
-	user.set('backgroundUrl', backgroundUrl);
-	// user.set('longitude', longitude);
-	// user.set('latitude', latitude);
+    var user = new AV.User();
 
+    parseToolkit.iterationSet(user, req.userJ)
 
-	user.signUp().then(function(user) {
-	  console.log(user);
-  	  res.send(user);
-	}, function(error) {
-	  // 失败了
-	  console.log('Error: ' + error.code + ' ' + error.message);
-	
-  	  res.send(error);
-	});
+    user.signUp().then(function(user) {
+        console.log(user);
+        res.status(200).send(user)
+    }, function(error) {
+        console.log('Error: ' + error.code + ' ' + error.message);
+        res.status(400).send(error)
+    });
 
 });
+
+
+///////////////////////////////////////////
+// login
+///////////////////////////////////////////
+
+router.use('/login', function(req, res, next) {
+    var username = req.body.email,
+        password = req.body.password;
+
+    if (!username || !password) {
+        res.status(400).send("error")
+    } 
+    else{
+        req.userJ = {
+            username: username,
+            password: password
+        }
+        next()
+    }
+});
+
+router.post('/login', function(req, res) {
+  console.log('/login   :')
+  // console.log(req.userJ)
+
+  var   username = req.userJ.username,
+        password = req.userJ.password;
+
+  AV.User.logIn(username, password).then(function(result) {
+    res.status(200).send(result)
+  }, function(error) {
+
+    console.log('Error: ' + error.code + ' ' + error.message);
+    res.status(400).send(error)
+  });
+})
+
+
+
+
+
 
 
 router.post('/me',requiredLogin, function(req, res, next) {
