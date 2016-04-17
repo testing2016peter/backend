@@ -12,6 +12,39 @@ var Comment = AV.Object.extend('Comment');
 
 
 
+///////////////////////////////////////////
+// GET/posts
+///////////////////////////////////////////
+
+router.get('/posts', function(req, res, next) {
+
+    var query = new AV.Query(Post);
+
+
+	query.include('_User');
+	query.exists('objectId');
+	query.find().then(function(posts) {
+
+		var postArr = []
+		_.each(posts,function(post){
+			var authorId = post.get('author')
+
+			post=post.toJSON()
+			var p = {
+				objectId: post.objectId,
+				text: post.text,
+				createdAt: post.createdAt,
+				updatedAt: post.updatedAt,
+				author: post.author.objectId
+			}
+			postArr.push(p)
+		})
+        res.status(200).json(postArr)
+	}, function(error) {
+        res.status(400).send(error)
+	});
+});
+
 
 ///////////////////////////////////////////
 // GET/post
@@ -46,7 +79,7 @@ router.use('/post', function(req, res, next) {
     else{
         req.pJson = jsonAPI.removeNull({
             text: text,
-            user: AV.User.current()
+            author: AV.User.current()
         })
         next()
     }
