@@ -16,12 +16,36 @@ var Comment = AV.Object.extend('Comment');
 // GET/posts
 ///////////////////////////////////////////
 
+router.use('/posts', function(req, res, next) {
+
+    var offset = req.query.offset,
+        limit = req.query.limit;
+
+    if (!offset || !limit ) {
+		req.OJson = {
+			offset : 0,
+			limit : 100
+		}
+        next()
+    } 
+    else{
+		req.OJson = {
+			offset : offset,
+			limit : limit
+		}
+        next()
+    }
+})
+
 router.get('/posts', function(req, res, next) {
 
     var query = new AV.Query(Post);
 
-    query.skip(10);
-	query.limit(10);
+    var offset = req.OJson.offset
+    var limit = req.OJson.limit
+
+    query.skip(offset);
+	query.limit(limit);
 	query.include('_User');
 	query.exists('objectId');
 	query.find().then(function(posts) {
@@ -30,9 +54,6 @@ router.get('/posts', function(req, res, next) {
 		_.each(posts,function(post){
 			var authorId = post.get('author')
 			var likeArr = post.get('likes')
-
-			console.log("likeArr")
-			console.log(likeArr)
 
 			post=post.toJSON()
 			var p = {
