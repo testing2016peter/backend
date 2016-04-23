@@ -43,12 +43,21 @@ router.get('/posts', function(req, res, next) {
 
     var offset = req.OJson.offset
     var limit = req.OJson.limit
+    var count 
 
     query.skip(offset);
 	query.limit(limit);
 	query.include('_User');
 	query.exists('objectId');
-	query.find().then(function(posts) {
+
+    query.count().then(function(num){
+        count = num
+        return  query.find()
+    }).then(function(posts) {
+
+        var returnJ = {
+            total : count
+        }
 
 		var postArr = []
 		_.each(posts,function(post){
@@ -66,7 +75,9 @@ router.get('/posts', function(req, res, next) {
 			}
 			postArr.push(p)
 		})
-        res.status(200).json(postArr)
+
+        returnJ.posts = postArr
+        res.status(200).json(returnJ)
 	}, function(error) {
         res.status(400).send(error)
 	});
