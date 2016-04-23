@@ -14,7 +14,8 @@ var routes = require('./routes/index');
 var users = require('./routes/users');
 var upload = require('./routes/upload');
 var data = require('./routes/data');
-var testAPI = require('./routes/test');
+var apn = require('./routes/apn');
+// var testAPI = require('./routes/test');
 
 var app = express();
 
@@ -36,8 +37,9 @@ app.use(AV.Cloud.CookieSession({ secret: 'my secret', maxAge: 93312000000, fetch
 app.use('/', routes);
 app.use('/v1/users', users);
 app.use('/v1/', upload);
-app.use('/test', testAPI);
 app.use('/v1/data', data);
+app.use('/v1/upload', upload);
+app.use('/v1/pushmsg', apn);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

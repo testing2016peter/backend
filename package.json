@@ -13,6 +13,8 @@
     "debug": "~2.2.0",
     "ejs": "~2.3.3",
     "express": "~4.13.1",
+    "flickrapi": "^0.4.2",
+    "formidable": "^1.0.17",
     "leanengine": "^0.4.0",
     "morgan": "~1.6.1",
     "serve-favicon": "~2.3.0"
