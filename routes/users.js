@@ -258,6 +258,12 @@ router.get('/me/posts', function(req, res, next) {
     var Post = AV.Object.extend('Post');
     var query = new AV.Query(Post);
 
+    var offset = req.OJson.offset
+    var limit = req.OJson.limit
+
+    query.skip(offset);
+    query.limit(limit);
+
     query.equalTo("author", AV.User.current());
 
     query.find().then(function(posts) {
