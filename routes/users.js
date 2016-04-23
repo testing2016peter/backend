@@ -3,6 +3,7 @@ var router = express.Router();
 var AV = require('leanengine')
 var _ = require('underscore')
 var requiredLogin = require('../module/requiredLogin.js')
+var FILTER = require('../module/FILTER.js')
 
 var parseToolkit = require('../module/parseToolkit')
 var jsonAPI = require('../module/jsonAPI')
@@ -101,7 +102,7 @@ router.use('/signup', function(req, res, next) {
         password = req.body.password;
 
     if (!email || !password ) {
-        res.status(400).send("error")
+        res.status(400).send("email and password is require")
     } 
     else{
         req.userJ = jsonAPI.removeNull({
@@ -225,6 +226,63 @@ router.get('/me', function(req, res, next) {
 	}
 
 });
+///////////////////////////////////////////
+// GET/posts
+///////////////////////////////////////////
+
+router.use('/me/posts', function(req, res, next) {
+
+    var offset = req.query.offset,
+        limit = req.query.limit;
+
+    if (!offset || !limit ) {
+    req.OJson = {
+      offset : 0,
+      limit : 100
+    }
+        next()
+    } 
+    else{
+    req.OJson = {
+      offset : offset,
+      limit : limit
+    }
+        next()
+    }
+})
+
+router.get('/me/posts', function(req, res, next) {
+  console.log("post me")
+
+  if(AV.User.current()){
+    var Post = AV.Object.extend('Post');
+    var query = new AV.Query(Post);
+
+    query.equalTo("author", AV.User.current());
+
+    query.find().then(function(posts) {
+
+      if(posts.length <=0)
+
+        var postst = []
+      _.each(posts,function(post){
+        // console.log(FILTER.post(post))
+        posts.push(FILTER.post(post))
+      })
+
+      res.status(200).json(postst)
+
+    }, function(error) {
+          res.status(400).send(error)
+    });
+  }
+  else{
+    // res.send({code: -1, message: "user not log in"}) 
+    res.status(400).send({code: -1, message: "user not log in"})
+  }
+
+});
+
 
 router.post('/logout', function(req, res, next) {
 	console.log("post me")
