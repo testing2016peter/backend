@@ -185,44 +185,45 @@ router.post('/post/:postId/comment', function(req, res, next) {
 ///////////////////////////////////////////
 // /post/like
 ///////////////////////////////////////////
-router.use('/post/:postId/like', function(req, res, next) {
-    var text = req.body.text
-    var postId = req.params.postId
+// router.use('/posts/:postId/like', function(req, res, next) {
+//     var text = req.body.text
+//     var postId = req.params.postId
 
-    if (!text) {
-        res.status(400).send("error")
-    } 
-    else{
-        req.mJson = jsonAPI.removeNull({
-            text: text,
-            postId: postId
-        })
-        next()
-    }
-});
+//     if (!text) {
+//         res.status(400).send("error")
+//     } 
+//     else{
+//         req.mJson = jsonAPI.removeNull({
+//             text: text,
+//             postId: postId
+//         })
+//         next()
+//     }
+// // });
 
-router.post('/post/:postId/like', function(req, res, next) {
+// router.post('/posts/:postId/like', function(req, res, next) {
+//     console.log('/post/:postId/like')
 
-    var query = new AV.Query(Post);
-	query.get(req.mJson.postId).then(function(post) {
+//     var query = new AV.Query(Post);
+// 	query.get(req.mJson.postId).then(function(post) {
 
-		// var relation = post.relation('likes');
-		// relation.add(AV.User.current())
+// 		// var relation = post.relation('likes');
+// 		// relation.add(AV.User.current())
 
-		var likes = []
-		likes.push(AV.User.current())
+// 		var likes = []
+// 		likes.push(AV.User.current())
 
-		console.log(likes)
-		post.set("likes", likes)
+// 		console.log(likes)
+// 		post.set("likes", likes)
 
-		return post.save()
-	}).then(function(l){
-        res.status(200).json(l)
-	}, function(error) {
-        res.status(400).send(error)
-	});
+// 		return post.save()
+// 	}).then(function(l){
+//         res.status(200).json(l)
+// 	}, function(error) {
+//         res.status(400).send(error)
+// 	});
 
-});
+// });
 
 
 

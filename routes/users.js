@@ -122,7 +122,7 @@ router.use('/me/posts', function(req, res, next) {
 })
 
 router.get('/me/posts', function(req, res, next) {
-  console.log("post me")
+  console.log("/me/post")
 
   if(AV.User.current()){
     var Post = AV.Object.extend('Post');
@@ -138,12 +138,9 @@ router.get('/me/posts', function(req, res, next) {
 
     query.find().then(function(posts) {
 
-      if(posts.length <=0)
-
-        var postst = []
+      var postst = []
       _.each(posts,function(post){
-        // console.log(FILTER.post(post))
-        posts.push(FILTER.post(post))
+        postst.push(FILTER.post(post))
       })
 
       res.status(200).json(postst)

@@ -1,27 +1,16 @@
-var singleton = function singleton(){
-    this.post = function ( post ){
-	  return {
-	    objectId: post.id,
-	    app: post.get("text")
-	  }
-	}
-    if(singleton.caller != singleton.getInstance){
-        throw new Error("This object cannot be instanciated");
-    }
+
+
+var API = function() {};
+
+
+API.post = function(post) {
+      return {
+        objectId: post.id,
+        text: post.get("text"),
+        like1_count: post.get("like1_count"),
+        like2_count: post.get("like2_count")
+      }
 }
 
-singleton.instance = null;
 
-/**
- * Singleton getInstance definition
- * @return singleton class
- */
-singleton.getInstance = function(){
-    if(this.instance === null){
-        this.instance = new singleton();
-    }
-    return this.instance;
-}
-
-module.exports = singleton.getInstance();
-
+module.exports = API
