@@ -74,7 +74,7 @@ router.post('/login',_checkLogin, function(req, res) {
   var   username = req.userJ.username,
         password = req.userJ.password;
 
-  AV.User.logIn(username, password).then(function(result) {
+  AV.User.logIn(username, password).then(function(user) {
     res.status(200).json(FILTER.user(user))
   }, function(error) {
 
