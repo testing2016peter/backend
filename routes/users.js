@@ -38,8 +38,7 @@ router.post('/signup',_checkSignup, function(req, res, next) {
     parseToolkit.iterationSet(user, req.userJ)
 
     user.signUp().then(function(user) {
-        console.log(user);
-        res.status(200).send(user)
+        res.status(200).json(FILTER.user(user))
     }, function(error) {
         console.log('Error: ' + error.code + ' ' + error.message);
         res.status(400).send(error)
@@ -76,7 +75,7 @@ router.post('/login',_checkLogin, function(req, res) {
         password = req.userJ.password;
 
   AV.User.logIn(username, password).then(function(result) {
-    res.status(200).send(result)
+    res.status(200).json(FILTER.user(user))
   }, function(error) {
 
     console.log('Error: ' + error.code + ' ' + error.message);
