@@ -13,7 +13,7 @@ AV.initialize("Wqia15HnxcIAXH1Lk06m2n3Q-gzGzoHsz", "hwd81deBLAQDk1a3G4jTUKjY");
 var routes = require('./routes/index');
 var users = require('./routes/users');
 var upload = require('./routes/upload');
-var data = require('./routes/data');
+var post = require('./routes/post');
 var like = require('./routes/like');
 var apn = require('./routes/apn');
 // var testAPI = require('./routes/test');
@@ -37,7 +37,7 @@ app.use(AV.Cloud.CookieSession({ secret: 'my secret', maxAge: 93312000000, fetch
 
 app.use('/', routes);
 app.use('/v1/users', users);
-app.use('/v1/', data);
+app.use('/v1/posts', post);
 app.use('/v1/', like);
 app.use('/v1/upload', upload);
 app.use('/v1/pushmsg', apn);

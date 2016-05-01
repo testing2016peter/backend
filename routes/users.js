@@ -88,7 +88,7 @@ router.get('/me', function(req, res, next) {
 	console.log("post me")
 
 	if(AV.User.current()){
-		res.send(AV.User.current()) 
+		res.json(FILTER.user(AV.User.current()))
 	}
 	else{
 		// res.send({code: -1, message: "user not log in"}) 
@@ -133,10 +133,10 @@ router.post('/me',_requiredLogin,_checkUpdate, function(req, res, next) {
 
   user.save().then(function(user) {
     console.log(user);
-      res.send(user);
+      res.status(200).json(FILTER.user(user))
   }, function(error) {
     console.log('Error: ' + error.code + ' ' + error.message);
-      res.send(error);
+      res.status(400).send(error);
   });
 
 });
@@ -146,7 +146,7 @@ router.post('/me',_requiredLogin,_checkUpdate, function(req, res, next) {
 // GET/posts
 ///////////////////////////////////////////
 
-router.use('/me/posts', function(req, res, next) {
+var _checkMePosts = function(req, res, next) {
 
     var offset = req.query.offset,
         limit = req.query.limit;
@@ -165,12 +165,11 @@ router.use('/me/posts', function(req, res, next) {
     }
         next()
     }
-})
+}
 
-router.get('/me/posts', function(req, res, next) {
+router.get('/me/posts',_requiredLogin,_checkMePosts, function(req, res, next) {
   console.log("/me/post")
 
-  if(AV.User.current()){
     var Post = AV.Object.extend('Post');
     var query = new AV.Query(Post);
 
@@ -194,11 +193,7 @@ router.get('/me/posts', function(req, res, next) {
     }, function(error) {
           res.status(400).send(error)
     });
-  }
-  else{
-    // res.send({code: -1, message: "user not log in"}) 
-    res.status(400).send({code: -1, message: "user not log in"})
-  }
+  
 
 });
 
@@ -207,10 +202,10 @@ router.post('/logout',_requiredLogin, function(req, res, next) {
 
 	if(AV.User.current()){
 		AV.User.logOut();
-		res.send({code: 0, message: "user log out"}) 
+		res.status(200).json({code: 0, message: "user log out"}) 
 	}
 	else{
-		res.send({code: -1, message: "user not log in"}) 
+		res.status(400).send({code: -1, message: "user not log in"}) 
 	}
 
 });
