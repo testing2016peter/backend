@@ -9,6 +9,7 @@ API.post = function(post) {
         text: post.get("text"),
         like1_count: post.get("like1_count"),
         like2_count: post.get("like2_count"),
+        comment_count: post.get("comment_count"),
         createdAt: post.createdAt,
         updatedAt: post.updatedAt,
         author: post.get("author").id

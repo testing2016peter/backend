@@ -14,12 +14,20 @@ var Comment = AV.Object.extend('Comment');
 
 
 
+///////////////////////////////////////////
+// GET /
+// POST /
+// GET /:postId
+// DELETE /:postId
+// PUT /:postId
+///////////////////////////////////////////
+
+
+
 
 ///////////////////////////////////////////
 // GET/posts
 ///////////////////////////////////////////
-
-
 
 var _checkOffsetLimit = function(req, res, next) {
 
@@ -67,10 +75,12 @@ var _queryPost = function(req) {
         var limit = req.OJson.limit
         var count
 
+        query.notEqualTo('isDelete', true);
         query.skip(offset);
         query.limit(limit);
         query.include('author');
         query.exists('objectId');
+        query.addAscending('createdAt');
 
         query.count().then(function(num) {
             count = num
@@ -108,9 +118,11 @@ var _queryUsersPost = function(req) {
 
         queryUser.get(req.query.userId).then(function(user) {
 
+            query.notEqualTo('isDelete', true);
             query.skip(offset);
             query.limit(limit);
             query.include('author');
+            query.addAscending('createdAt');
 
             query.equalTo("author", user);
             return query.find()
@@ -162,29 +174,6 @@ router.get('/', _checkOffsetLimit,function(req, res, next) {
 
 });
 
-
-///////////////////////////////////////////
-// GET/post
-///////////////////////////////////////////
-
-router.get('/:postId', function(req, res, next) {
-
-    var postId = req.params.postId
-    var query = new AV.Query(Post);
-
-	query.include('author');
-	query.get(postId).then(function(post) {
-
-        var pt = FILTER.post(post)
-        pt.author = FILTER.user(post.get("author"))
-
-        res.status(200).json(pt)
-	}, function(error) {
-        res.status(400).send(error)
-	});
-});
-
-
 ///////////////////////////////////////////
 // /post
 ///////////////////////////////////////////
@@ -204,7 +193,7 @@ var _checkPostPosts = function(req, res, next) {
 }
 
 router.post('/',_requiredLogin,_checkPostPosts, function(req, res, next) {
-	var start = new Date().getTime();
+    var start = new Date().getTime();
 
     var post = new Post();
 
@@ -212,8 +201,8 @@ router.post('/',_requiredLogin,_checkPostPosts, function(req, res, next) {
 
     post.save().then(function(post) {
 
-		var end = new Date().getTime();
-		var time = end - start;
+        var end = new Date().getTime();
+        var time = end - start;
 
         console.log(time/1000 + 's      - New object created with objectId: ' + post.id);
         res.status(200).json(FILTER.post(post))
@@ -225,156 +214,76 @@ router.post('/',_requiredLogin,_checkPostPosts, function(req, res, next) {
 
 
 ///////////////////////////////////////////
-// /comment
+// GET PUT DELETE/:postId
 ///////////////////////////////////////////
-router.use('/post/:postId/comment', function(req, res, next) {
-    var text = req.body.text
+
+router.get('/:postId', function(req, res, next) {
+
     var postId = req.params.postId
-
-    if (!text) {
-        res.status(400).send("error")
-    } 
-    else{
-        req.mJson = jsonAPI.removeNull({
-            text: text,
-            postId: postId
-        })
-        next()
-    }
-});
-
-router.post('/post/:postId/comment', function(req, res, next) {
-
-    var comment = new Comment();
-
     var query = new AV.Query(Post);
-	query.get(req.mJson.postId).then(function(post) {
-		comment.set("text" , req.mJson.text)
-		comment.set("post" , post)
-		comment.set("user" , AV.User.current())
-		return comment.save()
-	}).then(function(com){
-        res.status(200).json(com)
-	}, function(error) {
-        res.status(400).send(error)
-	});
 
-});
+	query.include('author');
+    query.notEqualTo('isDelete', true);
+	query.get(postId).then(function(post) {
 
+        var pt = FILTER.post(post)
+        pt.author = FILTER.user(post.get("author"))
 
-///////////////////////////////////////////
-// /post/like
-///////////////////////////////////////////
-// router.use('/posts/:postId/like', function(req, res, next) {
-//     var text = req.body.text
-//     var postId = req.params.postId
-
-//     if (!text) {
-//         res.status(400).send("error")
-//     } 
-//     else{
-//         req.mJson = jsonAPI.removeNull({
-//             text: text,
-//             postId: postId
-//         })
-//         next()
-//     }
-// // });
-
-// router.post('/posts/:postId/like', function(req, res, next) {
-//     console.log('/post/:postId/like')
-
-//     var query = new AV.Query(Post);
-// 	query.get(req.mJson.postId).then(function(post) {
-
-// 		// var relation = post.relation('likes');
-// 		// relation.add(AV.User.current())
-
-// 		var likes = []
-// 		likes.push(AV.User.current())
-
-// 		console.log(likes)
-// 		post.set("likes", likes)
-
-// 		return post.save()
-// 	}).then(function(l){
-//         res.status(200).json(l)
-// 	}, function(error) {
-//         res.status(400).send(error)
-// 	});
-
-// });
-
-
-
-///////////////////////////////////////////
-// GET/comment
-///////////////////////////////////////////
-
-router.get('/comment/:commentId', function(req, res, next) {
-
-    var commentId = req.params.commentId
-    var query = new AV.Query(Comment);
-
-	query.include('Post');
-	query.get(commentId).then(function(comment) {
-		console.log('comment.get("post")')
-		console.log(comment.get("post"))
-		console.log('comment.get("post").get("text")')
-		console.log(comment.get("post").get("text"))
-		console.log('comment.get("post").toJSON()')
-		console.log(comment.get("post").toJSON())
-
-		var post = {
-			objectId : comment.get("post").objectId,
-			text : comment.get("post").get('text')
-
-		}
-		var returnJson = {
-			text : comment.get("text"),
-			objectId : comment.get("objectId"),
-			post : post
-		}
-
-        res.status(200).json(returnJson)
+        res.status(200).json(pt)
 	}, function(error) {
         res.status(400).send(error)
 	});
 });
 
-///////////////////////////////////////////
-// /comment/like
-///////////////////////////////////////////
-router.use('/comment/:commentId/like', function(req, res, next) {
+router.put('/:postId',_requiredLogin, function(req, res, next) {
+
     var text = req.body.text
-    var commentId = req.params.commentId
 
-    if (!text) {
-        res.status(400).send("error")
-    } 
-    else{
-        req.mJson = jsonAPI.removeNull({
-            text: text,
-            commentId: commentId
-        })
-        next()
-    }
-});
+    if(!text) 
+        res.status(400).send(" text empty error")
 
-router.post('/comment/:commentId/like', function(req, res, next) {
+    var postId = req.params.postId
+    var query = new AV.Query(Post);
 
-    var query = new AV.Query(Comment);
-	query.get(req.mJson.commentId).then(function(comment) {
+    query.notEqualTo('isDelete', true);
+    query.get(postId).then(function(post) {
 
-		var relation = comment.relation('likes');
-		relation.add(AV.User.current())
-		return comment.save()
-	}).then(function(l){
-        res.status(200).json(l)
-	}, function(error) {
+        if(!post){
+            res.status(400).send(" incorrect postId and not found ")
+        }
+        else{
+            post.set("text", text)
+            return post.save()
+        }
+    }).then(function(post2){
+        res.status(200).json(FILTER.post(post2))
+    }, function(error) {
         res.status(400).send(error)
-	});
-
+    });
 });
+
+router.delete('/:postId',_requiredLogin, function(req, res, next) {
+
+
+    var postId = req.params.postId
+    var query = new AV.Query(Post);
+
+    query.get(postId).then(function(post) {
+
+        if(!post){
+            res.status(400).send(" incorrect postId and not found ")
+        }
+        else{
+            post.set("isDelete", true)
+            return post.save()
+        }
+    }).then(function(post2){
+        res.status(200).json(FILTER.post(post2))
+    }, function(error) {
+        res.status(400).send(error)
+    });
+});
+
+
 
 module.exports = router;
