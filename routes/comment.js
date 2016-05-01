@@ -42,6 +42,7 @@ router.post('/',_requiredLogin, function(req, res, next) {
         else{
         	post = pObj
     		var comment = new Comment();
+            comment.set("author", AV.User.current())
     		comment.set("text", text)
 
             return comment.save()
@@ -66,32 +67,32 @@ router.post('/',_requiredLogin, function(req, res, next) {
 
 
 
-// router.put('/:commentId',_requiredLogin, function(req, res, next) {
+router.put('/:commentId',_requiredLogin, function(req, res, next) {
 
-//     var text = req.body.text
+    var text = req.body.text
 
-//     if(!text) 
-//         res.status(400).send(" text empty error")
+    if(!text) 
+        res.status(400).send(" text empty error")
 
-//     var commentId = req.params.commentId
-//     var query = new AV.Query(Comment);
+    var commentId = req.params.commentId
+    var query = new AV.Query(Comment);
 
-//     query.notEqualTo('isDelete', true);
-//     query.get(commentId).then(function(post) {
+    query.notEqualTo('isDelete', true);
+    query.get(commentId).then(function(comment) {
 
-//         if(!post){
-//             res.status(400).send(" incorrect commentId and not found ")
-//         }
-//         else{
-//             post.set("text", text)
-//             return post.save()
-//         }
-//     }).then(function(post2){
-//         res.status(200).json(FILTER.post(post2))
-//     }, function(error) {
-//         res.status(400).send(error)
-//     });
-// });
+        if(!comment){
+            res.status(400).send(" incorrect commentId and not found ")
+        }
+        else{
+            comment.set("text", text)
+            return comment.save()
+        }
+    }).then(function(comment2){
+        res.status(200).json(FILTER.cmoment(comment2))
+    }, function(error) {
+        res.status(400).send(error)
+    });
+});
 
 
 

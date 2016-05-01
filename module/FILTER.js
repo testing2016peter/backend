@@ -16,6 +16,16 @@ API.post = function(post) {
       }
 }
 
+API.comment = function(comment) {
+      return {
+        objectId: comment.id,
+        text: comment.get("text"),
+        createdAt: comment.createdAt,
+        updatedAt: comment.updatedAt,
+        author: API.user(comment.get("author"))
+      }
+}
+
 API.postAndAuthor = function(post) {
 
       var pt = API.post(post)

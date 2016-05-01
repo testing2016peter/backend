@@ -217,19 +217,71 @@ router.post('/',_requiredLogin,_checkPostPosts, function(req, res, next) {
 // GET PUT DELETE/:postId
 ///////////////////////////////////////////
 
+var initCommentQuery = function(relationt){
+    var query = relationt.query();
+    query.include('author');
+    query.notEqualTo('isDelete', true);
+    query.limit(1000);
+
+    return query
+}
+
+var initLikeQuery = function(relationt){
+    var query = relationt.query();
+    query.limit(1000);
+
+    return query
+}
+
 router.get('/:postId', function(req, res, next) {
 
     var postId = req.params.postId
     var query = new AV.Query(Post);
+    var returnPost
+    var postTemp,commentsTemp, like1sTemp,like2sTemp
 
 	query.include('author');
     query.notEqualTo('isDelete', true);
 	query.get(postId).then(function(post) {
 
-        var pt = FILTER.post(post)
-        pt.author = FILTER.user(post.get("author"))
+        postTemp = post
 
-        res.status(200).json(pt)
+        var queryComment = initCommentQuery(post.relation("comment"))
+        var queryLike1 = initLikeQuery(post.relation("like1"))
+        var queryLike2 = initLikeQuery(post.relation("like2"))
+
+        return AV.Promise.all([
+            queryComment.find(), 
+            queryLike2.find(),
+            queryLike1.find()
+        ])
+
+    }).then(function(results){
+
+        commentsTemp = results[0]
+        like1sTemp = results[1]
+        like2sTemp = results[2]
+
+        returnPost = FILTER.post(postTemp)
+        returnPost.author = FILTER.user(postTemp.get("author"))
+        returnPost.comments = []
+        returnPost.like1s = []
+        returnPost.like2s = []
+
+
+        _.each(commentsTemp, function(commentObj) {
+            returnPost.comments.push(FILTER.comment(commentObj))
+        })
+
+        _.each(like1sTemp, function(like1Obj) {
+            returnPost.like1s.push(FILTER.user(like1Obj))
+        })
+
+        _.each(like2sTemp, function(like2Obj) {
+            returnPost.like2s.push(FILTER.user(like2Obj))
+        })
+
+        res.status(200).json(returnPost)
 	}, function(error) {
         res.status(400).send(error)
 	});
