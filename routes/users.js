@@ -98,6 +98,11 @@ router.get('/me', function(req, res, next) {
 
 
 
+///////////////////////////////////////////
+// Update
+///////////////////////////////////////////
+
+
 var _checkUpdate = function(req, res,next){
     var nickname = req.body.nickname,
         backgroundImg = req.body.backgroundImg,
@@ -137,62 +142,6 @@ router.post('/me',_requiredLogin,_checkUpdate, function(req, res, next) {
     console.log('Error: ' + error.code + ' ' + error.message);
       res.status(400).send(error);
   });
-
-});
-
-
-///////////////////////////////////////////
-// GET/posts
-///////////////////////////////////////////
-
-var _checkMePosts = function(req, res, next) {
-
-    var offset = req.query.offset,
-        limit = req.query.limit;
-
-    if (!offset || !limit ) {
-    req.OJson = {
-      offset : 0,
-      limit : 100
-    }
-        next()
-    } 
-    else{
-    req.OJson = {
-      offset : offset,
-      limit : limit
-    }
-        next()
-    }
-}
-
-router.get('/me/posts',_requiredLogin,_checkMePosts, function(req, res, next) {
-  console.log("/me/post")
-
-    var Post = AV.Object.extend('Post');
-    var query = new AV.Query(Post);
-
-    var offset = req.OJson.offset
-    var limit = req.OJson.limit
-
-    query.skip(offset);
-    query.limit(limit);
-
-    query.equalTo("author", AV.User.current());
-
-    query.find().then(function(posts) {
-
-      var postst = []
-      _.each(posts,function(post){
-        postst.push(FILTER.post(post))
-      })
-
-      res.status(200).json(postst)
-
-    }, function(error) {
-          res.status(400).send(error)
-    });
-  
 
 });
 

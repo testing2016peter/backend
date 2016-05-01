@@ -24,20 +24,35 @@ var Comment = AV.Object.extend('Comment');
 var _checkOffsetLimit = function(req, res, next) {
 
     var offset = req.query.offset,
-        limit = req.query.limit;
+        limit = req.query.limit,
+        sortby = req.query.sortby
+
+    var sortbyType = ["createdAt","text"]
+
+        // query.addAscending('createdAt');
+        // query.addDescending('pubTimestamp');
+
+    if (sortby) {
+        if (_.indexOf(sortbyType, sortby) == -1){
+            sortby = null
+        }
+    }
+
 
     if (!offset || !limit ) {
-		req.OJson = {
+		req.OJson = jsonAPI.removeNull({
 			offset : 0,
-			limit : 100
-		}
+			limit : 100,
+            sortby : sortby
+		})
         next()
     } 
     else{
-		req.OJson = {
+		req.OJson = jsonAPI.removeNull({
 			offset : offset,
-			limit : limit
-		}
+			limit : limit,
+            sortby : sortby
+		})
         next()
     }
 }
@@ -54,7 +69,7 @@ var _queryPost = function(req) {
 
         query.skip(offset);
         query.limit(limit);
-        query.include('_User');
+        query.include('author');
         query.exists('objectId');
 
         query.count().then(function(num) {
@@ -69,7 +84,7 @@ var _queryPost = function(req) {
             var postArr = []
             _.each(posts, function(post) {
 
-                postArr.push(FILTER.post(post))
+                postArr.push(FILTER.postAndAuthor(post))
             })
 
             returnJ.posts = postArr
@@ -89,19 +104,32 @@ var _queryUsersPost = function(req) {
         var offset = req.OJson.offset
         var limit = req.OJson.limit
 
-        query.skip(offset);
-        query.limit(limit);
+        var queryUser = new AV.Query(AV.User);
 
-        query.equalTo("author", req.query.userId);
+        queryUser.get(req.query.userId).then(function(user) {
 
-        query.find().then(function(posts) {
+            query.skip(offset);
+            query.limit(limit);
+            query.include('author');
+
+            query.equalTo("author", user);
+            return query.find()
+
+        }).then(function(posts) {
+
+            var returnJ = {
+                total: posts.length
+            }
+
 
             var postst = []
             _.each(posts, function(post) {
-                postst.push(FILTER.post(post))
+                
+                postst.push(FILTER.postAndAuthor(post))
             })
 
-            resolve(postst)
+            returnJ.posts = postst
+            resolve(returnJ)
 
         }, function(error) {
             reject(error)
@@ -112,16 +140,26 @@ var _queryUsersPost = function(req) {
 
 router.get('/', _checkOffsetLimit,function(req, res, next) {
 
-    req.query.userId = "571336861ea493006b8cef45"
+    var userId = req.query.userId 
 
-    _queryUsersPost(req).then(function(result){
+    if(userId ){    
+        console.log("  if userId")
 
-    // _queryPost(req).then(function(result){
+        _queryUsersPost(req).then(function(result){
+            res.status(200).json(result)
+        },function(error){
+            res.status(400).send(error)
+        })
+    }
+    else{
+        console.log("  else ")
+        _queryPost(req).then(function(result){
+            res.status(200).json(result)
+        },function(error){
+            res.status(400).send(error)
+        })
+    }
 
-        res.status(200).json(result)
-    },function(error){
-        res.status(400).send(error)
-    })
 });
 
 
@@ -134,10 +172,13 @@ router.get('/:postId', function(req, res, next) {
     var postId = req.params.postId
     var query = new AV.Query(Post);
 
-	query.include('_User');
+	query.include('author');
 	query.get(postId).then(function(post) {
 
-        res.status(200).json(FILTER.post(post))
+        var pt = FILTER.post(post)
+        pt.author = FILTER.user(post.get("author"))
+
+        res.status(200).json(pt)
 	}, function(error) {
         res.status(400).send(error)
 	});

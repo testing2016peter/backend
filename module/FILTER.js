@@ -15,6 +15,13 @@ API.post = function(post) {
       }
 }
 
+API.postAndAuthor = function(post) {
+
+      var pt = API.post(post)
+      pt.author = API.user(post.get("author"))
+
+      return pt
+}
 
 API.user = function(user) {
       return {
